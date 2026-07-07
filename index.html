@@ -115,37 +115,36 @@
     let photoData = null;
     let stream = null;
 
-    // Dynamic Dropdown wadeta adala JavaScript kalla
-const locationData = {
-    "Western": ["Colombo", "Gampaha", "Kalutara"],
-    "Central": ["Kandy", "Matale", "Nuwara Eliya"],
-    "Southern": ["Galle", "Matara", "Hambantota"],
-    "Northern": ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
-    "Eastern": ["Trincomalee", "Batticaloa", "Ampara"],
-    "North Western": ["Kurunegala", "Puttalam"],
-    "North Central": ["Anuradhapura", "Polonnaruwa"],
-    "Uva": ["Badulla", "Monaragala"],
-    "Sabaragamuwa": ["Ratnapura", "Kegalle"]
-};
+    // Sri Lanka Provinces and Districts Data
+    const locationData = {
+        "Western": ["Colombo", "Gampaha", "Kalutara"],
+        "Central": ["Kandy", "Matale", "Nuwara Eliya"],
+        "Southern": ["Galle", "Matara", "Hambantota"],
+        "Northern": ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
+        "Eastern": ["Trincomalee", "Batticaloa", "Ampara"],
+        "North Western": ["Kurunegala", "Puttalam"],
+        "North Central": ["Anuradhapura", "Polonnaruwa"],
+        "Uva": ["Badulla", "Monaragala"],
+        "Sabaragamuwa": ["Ratnapura", "Kegalle"]
+    };
 
-// Me function eka thiyeda balanna, nama 100% match wenna oni screenshot eke thiyena ekata
-function updateDistricts() {
-    const provinceSelect = document.getElementById("province");
-    const districtSelect = document.getElementById("district");
-    const selectedProvince = provinceSelect.value;
+    // Update Districts Dropdown Function
+    function updateDistricts() {
+        const provinceSelect = document.getElementById("province");
+        const districtSelect = document.getElementById("district");
+        const selectedProvince = provinceSelect.value;
 
-    // Clear previous options
-    districtSelect.innerHTML = '<option value="">Select District</option>';
+        districtSelect.innerHTML = '<option value="">Select District</option>';
 
-    if (selectedProvince && locationData[selectedProvince]) {
-        locationData[selectedProvince].forEach(district => {
-            const option = document.createElement("option");
-            option.value = district;
-            option.textContent = district;
-            districtSelect.appendChild(option);
-        });
+        if (selectedProvince && locationData[selectedProvince]) {
+            locationData[selectedProvince].forEach(district => {
+                const option = document.createElement("option");
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
     }
-}
 
     // 1. Get GPS Coordinates
     function getGPS() {
@@ -168,9 +167,107 @@ function updateDistricts() {
         }
     }
 
-    // 2. Start Camera
+    // 2. Start Camera (Meka thama kalin mækila thibbe)
     function startCamera() {
         const video = document.getElementById('video');
         const captureBtn = document.getElementById('capture-btn');
         
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then((mediaStream) => {
+                stream = mediaStream;
+                video.srcObject = mediaStream;
+                video.style.display = "block";
+                captureBtn.style.display = "block";
+            })
+            .catch((err) => {
+                alert("Camera access denied or not found.");
+            });
+    }
+
+    // 3. Capture Photo
+    function capturePhoto() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        photoData = canvas.toDataURL('image/jpeg');
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+
+        video.style.display = "none";
+        document.getElementById('capture-btn').style.display = "none";
+        canvas.style.display = "block";
+        
+        document.getElementById('photo-status').innerText = "✅ Photo Captured!";
+        document.getElementById('photo-status').style.color = "green";
+    }
+
+    // 4. Submit Report Data
+    function submitReport() {
+        const province = document.getElementById('province').value;
+        const district = document.getElementById('district').value;
+        const city = document.getElementById('city').value;
+
+        if (!province || !district || !city) {
+            alert("⚠️ Please select Province, District and enter the City.");
+            return;
+        }
+        if (!lat || !lon) {
+            alert("⚠️ Please get GPS Coordinates!");
+            return;
+        }
+        if (!photoData) {
+            alert("⚠️ Please take a photo of the location!");
+            return;
+        }
+
+        // ==========================================
+        // METHANATA OYAGE GOOGLE APPS SCRIPT URL EKA DANNA
+        // ==========================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx77s0gw5qZplI-opiqGIIxd66TYFwxevad7xVEw-NjIdRsmQ6LvmmYM_iMkKflK-A25g/exec"; 
+
+        const report = {
+            time: new Date().toLocaleString(),
+            latitude: lat,
+            longitude: lon,
+            image: photoData,
+            province: province,
+            district: district,
+            city: city
+        };
+
+        const statusDiv = document.getElementById('submit-status');
+        statusDiv.innerText = "⏳ Submitting... Please wait.";
+        statusDiv.style.color = "blue";
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(report)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === "success"){
+                statusDiv.innerText = "✅ Report Successfully Submitted!";
+                statusDiv.style.color = "green";
+                alert("🎉 Thank you! The report has been saved.");
+            } else {
+                statusDiv.innerText = "❌ Error in saving data.";
+                statusDiv.style.color = "red";
+            }
+        })
+        .catch(error => {
+            statusDiv.innerText = "❌ Network Error.";
+            statusDiv.style.color = "red";
+            console.error(error);
+        });
+    }
+</script>
+
+</body>
+</html>
