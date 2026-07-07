@@ -15,7 +15,7 @@
         }
 
         #map {
-            height: 500px;
+            height: 550px;
             width: 100%;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -43,8 +43,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Map eka load kireema (Sri Lanka centere karala)
-        var map = L.map('map').setView([7.8731, 80.7718], 7);
+        // Map eka load kireema (Sri Lanka center karala)
+        var map = L.map('map').setView([7.8731, 80.7718], 8);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -52,23 +52,33 @@
         // Google Apps Script Web App URL eka
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKUmpvr0TKtItbYoXPW5G0ZjQLJdSu-lbbv25VK7xwC_2RWweteS-Q1f8yCCipV76m_w/exec";
 
-        // Data fetch karala map eke markers danna
-        fetch(SCRIPT_URL)
+        // 1. FIXED: URL එක අගට ?action=getReports එකතු කරා
+        fetch(`${SCRIPT_URL}?action=getReports`)
             .then(response => response.json())
             .then(data => {
                 data.forEach(location => {
-                    if (location.lat && location.lon) {
+                    // 2. FIXED: location.lat -> location.latitude ලෙසත්, location.lon -> location.longitude ලෙසත් වෙනස් කරා
+                    if (location.latitude && location.longitude) {
+                        
+                        var lat = parseFloat(location.latitude);
+                        var lon = parseFloat(location.longitude);
+
                         // Marker eka hadanawa
-                        var marker = L.marker([location.lat, location.lon]).addTo(map);
+                        var marker = L.marker([lat, lon]).addTo(map);
+                        
                         // Click karama details pennanna popup ekak
                         marker.bindPopup(`
-                            <b>City:</b> ${location.city} <br>
-                            <b>District:</b> ${location.district} <br>
-                            <b>Date:</b> ${new Date(location.time).toLocaleString()}
+                            <div style="font-family: Arial, sans-serif; line-height: 1.4;">
+                                <h4 style="margin: 0 0 5px 0; color: #ff4747;">Dengue Hotspot</h4>
+                                <b>City:</b> ${location.city} <br>
+                                <b>District:</b> ${location.district} <br>
+                                <b>Date:</b> ${location.time}
+                            </div>
                         `);
                     }
                 });
-            });
+            })
+            .catch(error => console.error("Error fetching map data:", error));
     </script>
 
 </body>
