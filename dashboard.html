@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dengue Admin Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f4f4f9;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .header {
+            background: #ff4747;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>🦟 Dengue Hotspot Admin Dashboard</h2>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Map eka load kireema (Sri Lanka centere karala)
+        var map = L.map('map').setView([7.8731, 80.7718], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Google Apps Script Web App URL eka
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx77s0gw5qZplI-opiqGIIxd66TYFwxevad7xVEw-NjIdRsmQ6LvmmYM_iMkKflK-A25g/exec";
+
+        // Data fetch karala map eke markers danna
+        fetch(SCRIPT_URL)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(location => {
+                    if (location.lat && location.lon) {
+                        // Marker eka hadanawa
+                        var marker = L.marker([location.lat, location.lon]).addTo(map);
+                        // Click karama details pennanna popup ekak
+                        marker.bindPopup(`
+                            <b>City:</b> ${location.city} <br>
+                            <b>District:</b> ${location.district} <br>
+                            <b>Date:</b> ${new Date(location.time).toLocaleString()}
+                        `);
+                    }
+                });
+            });
+    </script>
+
+</body>
+
+</html>
