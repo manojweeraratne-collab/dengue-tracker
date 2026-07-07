@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -115,7 +115,7 @@
     let photoData = null;
     let stream = null;
 
-    // Sri Lanka Provinces and Districts Data
+    // Sri Lanka Provinces and Districts Mapping Data
     const locationData = {
         "Western": ["Colombo", "Gampaha", "Kalutara"],
         "Central": ["Kandy", "Matale", "Nuwara Eliya"],
@@ -128,12 +128,13 @@
         "Sabaragamuwa": ["Ratnapura", "Kegalle"]
     };
 
-    // Update Districts Dropdown Function
+    // Function to update District Dropdown dynamically
     function updateDistricts() {
         const provinceSelect = document.getElementById("province");
         const districtSelect = document.getElementById("district");
         const selectedProvince = provinceSelect.value;
 
+        // Clear previous options
         districtSelect.innerHTML = '<option value="">Select District</option>';
 
         if (selectedProvince && locationData[selectedProvince]) {
@@ -167,7 +168,7 @@
         }
     }
 
-    // 2. Start Camera (Meka thama kalin mækila thibbe)
+    // 2. Start Camera
     function startCamera() {
         const video = document.getElementById('video');
         const captureBtn = document.getElementById('capture-btn');
@@ -208,7 +209,7 @@
         document.getElementById('photo-status').style.color = "green";
     }
 
-    // 4. Submit Report Data
+    // 4. Submit Report Data to Google Sheet
     function submitReport() {
         const province = document.getElementById('province').value;
         const district = document.getElementById('district').value;
