@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dengue Spotter App</title>
+    <title>Dengue Spotter App - Final</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,29 +33,14 @@
             width: 100%;
         }
 
-        .btn-gps {
-            background-color: #6c757d;
-        }
+        .btn-gps { background-color: #6c757d; }
+        .btn-cam { background-color: #ff4747; }
+        .btn-cap { background-color: #28a745; }
+        .btn-sub { background-color: #007bff; font-weight: bold; }
 
-        .btn-cam {
-            background-color: #ff4747;
-        }
+        button:hover { opacity: 0.9; }
 
-        .btn-cap {
-            background-color: #28a745;
-        }
-
-        .btn-sub {
-            background-color: #007bff;
-            font-weight: bold;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        video,
-        canvas {
+        video, canvas {
             width: 100%;
             margin-top: 10px;
             border-radius: 5px;
@@ -69,8 +54,7 @@
             color: #555;
         }
 
-        select,
-        input {
+        select, input {
             width: 100%;
             padding: 12px;
             margin-top: 10px;
@@ -86,11 +70,11 @@
 
     <div class="container">
         <h2>🦟 Dengue Spotter</h2>
-        <p>Dengue inna thana report karanna</p>
+        <p>Dengue report කරන නිල පද්ධතිය</p>
         <hr>
 
-        <h3 style="text-align: left; margin-bottom: 5px;">1. Select Area</h3>
-        <!-- Google Sheet eken dynamic load wenna methනට onchange කෑල්ල දැම්මා -->
+        <h3 style="text-align: left; margin-bottom: 5px;">1. Select Area & City</h3>
+        
         <select id="province" onchange="updateDistricts()">
             <option value="">Select Province</option>
         </select>
@@ -99,7 +83,7 @@
             <option value="">Select District</option>
         </select>
 
-        <input type="text" id="city" placeholder="Enter Main City (e.g. Kotte)">
+        <input type="text" id="city" placeholder="📍 Type Nearest City (e.g. Maharagama)">
 
         <hr>
 
@@ -128,14 +112,13 @@
         let lon = null;
         let photoData = null;
         let stream = null;
-        
-        // Sheet eke data load karගන්න හිස් Object එකක් හැදුවා
         let locationData = {};
 
-        // Oyage Live Google Apps Script Web App URL eka (Globally damma)
+        // ==========================================
+        // මෙතනට ඔයාගේ අලුත් WEB APP URL එක දාන්න
+        // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuBtC3-sVEZm0NuswlX0iVS2eT1PbsVbpgA5rRUwdvDFOFf-ywtlVM0tKVepamDMoFNA/exec";
 
-        // App eka open වෙද්දීම Google Sheet එකෙන් Locations ටැබ් එක කියවලා dropdown එක පුරවනවා
         window.onload = function() {
             const provinceSelect = document.getElementById('province');
             provinceSelect.innerHTML = '<option value="">⏳ Loading Provinces...</option>';
@@ -145,30 +128,24 @@
                 .then(data => {
                     locationData = data;
                     provinceSelect.innerHTML = '<option value="">Select Province</option>';
-                    
-                    // Province ලැයිස්තුව ඩ්‍රොප්ඩවුන් එකට දානවා
                     Object.keys(locationData).forEach(province => {
                         const option = document.createElement('option');
                         option.value = province;
                         option.textContent = province;
                         provinceSelect.appendChild(option);
                     });
-                    console.log("Data loaded successfully from Google Sheet:", locationData);
                 })
                 .catch(error => {
-                    console.error("Error loading location data:", error);
+                    console.error("Error:", error);
                     provinceSelect.innerHTML = '<option value="">❌ Error loading data</option>';
-                    alert("Failed to load Provinces. Please refresh the page.");
                 });
         };
 
-        // Province එක සිලෙක්ට් කරාම ඒකට අදාළ දිස්ත්‍රික්ක ටික ලෝඩ් කරන function එක
         function updateDistricts() {
             const provinceSelect = document.getElementById("province");
             const districtSelect = document.getElementById("district");
             const selectedProvince = provinceSelect.value;
 
-            // කලින් තිබ්බ දිස්ත්‍රික්ක Clear කරනවා
             districtSelect.innerHTML = '<option value="">Select District</option>';
 
             if (selectedProvince && locationData[selectedProvince]) {
@@ -181,7 +158,6 @@
             }
         }
 
-        // 1. Get GPS Coordinates
         function getGPS() {
             document.getElementById('gps-status').innerText = "⏳ Fetching GPS...";
             if (navigator.geolocation) {
@@ -193,20 +169,16 @@
                         document.getElementById('gps-status').style.color = "green";
                     },
                     (error) => {
-                        alert("Location access denied. Please enable GPS in your phone settings.");
+                        alert("Please enable GPS in your phone settings.");
                         document.getElementById('gps-status').innerText = "❌ GPS Failed";
                     }
                 );
-            } else {
-                alert("Geolocation is not supported by your browser.");
             }
         }
 
-        // 2. Start Camera
         function startCamera() {
             const video = document.getElementById('video');
             const captureBtn = document.getElementById('capture-btn');
-
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then((mediaStream) => {
                     stream = mediaStream;
@@ -214,12 +186,9 @@
                     video.style.display = "block";
                     captureBtn.style.display = "block";
                 })
-                .catch((err) => {
-                    alert("Camera access denied or not found.");
-                });
+                .catch(() => alert("Camera access denied."));
         }
 
-        // 3. Capture Photo
         function capturePhoto() {
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
@@ -229,41 +198,29 @@
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Save image as Base64 string
             photoData = canvas.toDataURL('image/jpeg');
 
-            // Stop camera stream to save battery
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
+            if (stream) { stream.getTracks().forEach(track => track.stop()); }
 
             video.style.display = "none";
             document.getElementById('capture-btn').style.display = "none";
-            canvas.style.display = "block"; // Show captured image
+            canvas.style.display = "block";
 
             document.getElementById('photo-status').innerText = "✅ Photo Captured!";
             document.getElementById('photo-status').style.color = "green";
         }
 
-        // 4. Submit Report Data to Google Sheet
         function submitReport() {
             const province = document.getElementById('province').value;
             const district = document.getElementById('district').value;
             const city = document.getElementById('city').value;
 
-            // Check if all details are filled
             if (!province || !district || !city) {
-                alert("⚠️ Please select Province, District and enter the City.");
+                alert("⚠️ Please fill all area details & nearest city.");
                 return;
             }
-            if (!lat || !lon) {
-                alert("⚠️ Please get GPS Coordinates!");
-                return;
-            }
-            if (!photoData) {
-                alert("⚠️ Please take a photo of the location!");
-                return;
-            }
+            if (!lat || !lon) { alert("⚠️ Please get GPS Coordinates!"); return; }
+            if (!photoData) { alert("⚠️ Please take a photo!"); return; }
 
             const report = {
                 time: new Date().toLocaleString(),
@@ -276,33 +233,30 @@
             };
 
             const statusDiv = document.getElementById('submit-status');
-            statusDiv.innerText = "⏳ Submitting... Please wait.";
+            statusDiv.innerText = "⏳ Submitting Report & Uploading Image...";
             statusDiv.style.color = "blue";
 
-            // Send data to Google Apps Script
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify(report)
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        statusDiv.innerText = "✅ Report Successfully Submitted!";
-                        statusDiv.style.color = "green";
-                        alert("🎉 Thank you! The report has been saved.");
-                    } else {
-                        statusDiv.innerText = "❌ Error in saving data.";
-                        statusDiv.style.color = "red";
-                    }
-                })
-                .catch(error => {
-                    statusDiv.innerText = "❌ Network Error.";
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    statusDiv.innerText = "✅ Successfully Submitted!";
+                    statusDiv.style.color = "green";
+                    alert("🎉 Report and Image saved successfully!");
+                    location.reload(); // Page එක reset කරනවාඊළඟ එකට
+                } else {
+                    statusDiv.innerText = "❌ Error: " + data.message;
                     statusDiv.style.color = "red";
-                    console.error(error);
-                });
+                }
+            })
+            .catch(error => {
+                statusDiv.innerText = "❌ Network Error.";
+                statusDiv.style.color = "red";
+            });
         }
     </script>
-
 </body>
-
 </html>
