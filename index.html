@@ -90,20 +90,13 @@
         <hr>
 
         <h3 style="text-align: left; margin-bottom: 5px;">1. Select Area</h3>
-        <select id="province">
+        <!-- Google Sheet eken dynamic load wenna methනට onchange කෑල්ල දැම්මා -->
+        <select id="province" onchange="updateDistricts()">
             <option value="">Select Province</option>
-            <option value="Western">Western</option>
-            <option value="Central">Central</option>
-            <option value="Southern">Southern</option>
         </select>
 
         <select id="district">
             <option value="">Select District</option>
-            <option value="Colombo">Colombo</option>
-            <option value="Gampaha">Gampaha</option>
-            <option value="Kalutara">Kalutara</option>
-            <option value="Kandy">Kandy</option>
-            <option value="Galle">Galle</option>
         </select>
 
         <input type="text" id="city" placeholder="Enter Main City (e.g. Kotte)">
@@ -135,6 +128,58 @@
         let lon = null;
         let photoData = null;
         let stream = null;
+        
+        // Sheet eke data load karගන්න හිස් Object එකක් හැදුවා
+        let locationData = {};
+
+        // Oyage Live Google Apps Script Web App URL eka (Globally damma)
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx77s0gw5qZplI-opiqGIIxd66TYFwxevad7xVEw-NjIdRsmQ6LvmmYM_iMkKflK-A25g/exec";
+
+        // App eka open වෙද්දීම Google Sheet එකෙන් Locations ටැබ් එක කියවලා dropdown එක පුරවනවා
+        window.onload = function() {
+            const provinceSelect = document.getElementById('province');
+            provinceSelect.innerHTML = '<option value="">⏳ Loading Provinces...</option>';
+
+            fetch(SCRIPT_URL)
+                .then(response => response.json())
+                .then(data => {
+                    locationData = data;
+                    provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                    
+                    // Province ලැයිස්තුව ඩ්‍රොප්ඩවුන් එකට දානවා
+                    Object.keys(locationData).forEach(province => {
+                        const option = document.createElement('option');
+                        option.value = province;
+                        option.textContent = province;
+                        provinceSelect.appendChild(option);
+                    });
+                    console.log("Data loaded successfully from Google Sheet:", locationData);
+                })
+                .catch(error => {
+                    console.error("Error loading location data:", error);
+                    provinceSelect.innerHTML = '<option value="">❌ Error loading data</option>';
+                    alert("Failed to load Provinces. Please refresh the page.");
+                });
+        };
+
+        // Province එක සිලෙක්ට් කරාම ඒකට අදාළ දිස්ත්‍රික්ක ටික ලෝඩ් කරන function එක
+        function updateDistricts() {
+            const provinceSelect = document.getElementById("province");
+            const districtSelect = document.getElementById("district");
+            const selectedProvince = provinceSelect.value;
+
+            // කලින් තිබ්බ දිස්ත්‍රික්ක Clear කරනවා
+            districtSelect.innerHTML = '<option value="">Select District</option>';
+
+            if (selectedProvince && locationData[selectedProvince]) {
+                locationData[selectedProvince].forEach(district => {
+                    const option = document.createElement("option");
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+            }
+        }
 
         // 1. Get GPS Coordinates
         function getGPS() {
@@ -219,11 +264,6 @@
                 alert("⚠️ Please take a photo of the location!");
                 return;
             }
-
-            // ==========================================
-            // METHANATA OYAGE GOOGLE APPS SCRIPT URL EKA DANNA
-            // ==========================================
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx77s0gw5qZplI-opiqGIIxd66TYFwxevad7xVEw-NjIdRsmQ6LvmmYM_iMkKflK-A25g/exec";
 
             const report = {
                 time: new Date().toLocaleString(),
