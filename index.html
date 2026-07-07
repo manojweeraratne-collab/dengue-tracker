@@ -115,37 +115,37 @@
     let photoData = null;
     let stream = null;
 
-    // Sri Lanka Provinces and Districts Mapping Data
-    const locationData = {
-        "Western": ["Colombo", "Gampaha", "Kalutara"],
-        "Central": ["Kandy", "Matale", "Nuwara Eliya"],
-        "Southern": ["Galle", "Matara", "Hambantota"],
-        "Northern": ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
-        "Eastern": ["Trincomalee", "Batticaloa", "Ampara"],
-        "North Western": ["Kurunegala", "Puttalam"],
-        "North Central": ["Anuradhapura", "Polonnaruwa"],
-        "Uva": ["Badulla", "Monaragala"],
-        "Sabaragamuwa": ["Ratnapura", "Kegalle"]
-    };
+    // Dynamic Dropdown wadeta adala JavaScript kalla
+const locationData = {
+    "Western": ["Colombo", "Gampaha", "Kalutara"],
+    "Central": ["Kandy", "Matale", "Nuwara Eliya"],
+    "Southern": ["Galle", "Matara", "Hambantota"],
+    "Northern": ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
+    "Eastern": ["Trincomalee", "Batticaloa", "Ampara"],
+    "North Western": ["Kurunegala", "Puttalam"],
+    "North Central": ["Anuradhapura", "Polonnaruwa"],
+    "Uva": ["Badulla", "Monaragala"],
+    "Sabaragamuwa": ["Ratnapura", "Kegalle"]
+};
 
-    // Function to update District Dropdown dynamically
-    function updateDistricts() {
-        const provinceSelect = document.getElementById("province");
-        const districtSelect = document.getElementById("district");
-        const selectedProvince = provinceSelect.value;
+// Me function eka thiyeda balanna, nama 100% match wenna oni screenshot eke thiyena ekata
+function updateDistricts() {
+    const provinceSelect = document.getElementById("province");
+    const districtSelect = document.getElementById("district");
+    const selectedProvince = provinceSelect.value;
 
-        // Clear previous options
-        districtSelect.innerHTML = '<option value="">Select District</option>';
+    // Clear previous options
+    districtSelect.innerHTML = '<option value="">Select District</option>';
 
-        if (selectedProvince && locationData[selectedProvince]) {
-            locationData[selectedProvince].forEach(district => {
-                const option = document.createElement("option");
-                option.value = district;
-                option.textContent = district;
-                districtSelect.appendChild(option);
-            });
-        }
+    if (selectedProvince && locationData[selectedProvince]) {
+        locationData[selectedProvince].forEach(district => {
+            const option = document.createElement("option");
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+        });
     }
+}
 
     // 1. Get GPS Coordinates
     function getGPS() {
