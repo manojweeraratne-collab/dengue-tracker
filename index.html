@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,14 +12,16 @@
             padding: 20px;
             background-color: #f4f4f9;
         }
+
         .container {
             max-width: 500px;
             margin: auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         button {
             color: white;
             border: none;
@@ -29,26 +32,45 @@
             margin-top: 10px;
             width: 100%;
         }
-        .btn-gps { background-color: #6c757d; }
-        .btn-cam { background-color: #ff4747; }
-        .btn-cap { background-color: #28a745; }
-        .btn-sub { background-color: #007bff; font-weight: bold;}
-        
-        button:hover { opacity: 0.9; }
-        
-        video, canvas {
+
+        .btn-gps {
+            background-color: #6c757d;
+        }
+
+        .btn-cam {
+            background-color: #ff4747;
+        }
+
+        .btn-cap {
+            background-color: #28a745;
+        }
+
+        .btn-sub {
+            background-color: #007bff;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        video,
+        canvas {
             width: 100%;
             margin-top: 10px;
             border-radius: 5px;
             background: #ddd;
         }
+
         .status {
             margin: 10px 0;
             font-size: 14px;
             font-weight: bold;
             color: #555;
         }
-        select, input {
+
+        select,
+        input {
             width: 100%;
             padding: 12px;
             margin-top: 10px;
@@ -59,216 +81,188 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>🦟 Dengue Spotter</h2>
-    <p>Dengue inna thana report karanna</p>
-    <hr>
+    <div class="container">
+        <h2>🦟 Dengue Spotter</h2>
+        <p>Dengue inna thana report karanna</p>
+        <hr>
 
-    <h3 style="text-align: left; margin-bottom: 5px;">1. Select Area</h3>
-    
-    <select id="province" onchange="updateDistricts()">
-        <option value="">Select Province</option>
-        <option value="Western">Western (බස්නාහිර)</option>
-        <option value="Central">Central (මධ්‍යම)</option>
-        <option value="Southern">Southern (දකුණ)</option>
-        <option value="Northern">Northern (උතුර)</option>
-        <option value="Eastern">Eastern (නැගෙනහිර)</option>
-        <option value="North Western">North Western (වයඹ)</option>
-        <option value="North Central">North Central (උතුරු මැද)</option>
-        <option value="Uva">Uva (ඌව)</option>
-        <option value="Sabaragamuwa">Sabaragamuwa (සබරගමුව)</option>
-    </select>
+        <h3 style="text-align: left; margin-bottom: 5px;">1. Select Area</h3>
+        <select id="province">
+            <option value="">Select Province</option>
+            <option value="Western">Western</option>
+            <option value="Central">Central</option>
+            <option value="Southern">Southern</option>
+        </select>
 
-    <select id="district">
-        <option value="">Select District</option>
-    </select>
+        <select id="district">
+            <option value="">Select District</option>
+            <option value="Colombo">Colombo</option>
+            <option value="Gampaha">Gampaha</option>
+            <option value="Kalutara">Kalutara</option>
+            <option value="Kandy">Kandy</option>
+            <option value="Galle">Galle</option>
+        </select>
 
-    <input type="text" id="city" placeholder="Enter Main City (e.g. Maharagama, Kandy)">
+        <input type="text" id="city" placeholder="Enter Main City (e.g. Kotte)">
 
-    <hr>
+        <hr>
 
-    <h3 style="text-align: left; margin-bottom: 5px;">2. Pinpoint Location</h3>
-    <button class="btn-gps" onclick="getGPS()">📍 Get GPS Coordinates</button>
-    <div id="gps-status" class="status">GPS: Not Captured</div>
+        <h3 style="text-align: left; margin-bottom: 5px;">2. Pinpoint Location</h3>
+        <button class="btn-gps" onclick="getGPS()">📍 Get GPS Coordinates</button>
+        <div id="gps-status" class="status">GPS: Not Captured</div>
 
-    <hr>
+        <hr>
 
-    <h3 style="text-align: left; margin-bottom: 5px;">3. Take Evidence</h3>
-    <button class="btn-cam" onclick="startCamera()">📷 Open Camera</button>
-    <video id="video" autoplay playsinline style="display:none;"></video>
-    <button id="capture-btn" class="btn-cap" onclick="capturePhoto()" style="display:none;">📸 Take Photo</button>
-    
-    <canvas id="canvas" style="display:none;"></canvas>
-    <div id="photo-status" class="status">Photo: Not Taken</div>
+        <h3 style="text-align: left; margin-bottom: 5px;">3. Take Evidence</h3>
+        <button class="btn-cam" onclick="startCamera()">📷 Open Camera</button>
+        <video id="video" autoplay playsinline style="display:none;"></video>
+        <button id="capture-btn" class="btn-cap" onclick="capturePhoto()" style="display:none;">📸 Take Photo</button>
 
-    <hr>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div id="photo-status" class="status">Photo: Not Taken</div>
 
-    <button class="btn-sub" onclick="submitReport()">🚀 Submit Report</button>
-    <div id="submit-status" class="status"></div>
-</div>
+        <hr>
 
-<script>
-    let lat = null;
-    let lon = null;
-    let photoData = null;
-    let stream = null;
+        <button class="btn-sub" onclick="submitReport()">🚀 Submit Report</button>
+        <div id="submit-status" class="status"></div>
+    </div>
 
-    // Sri Lanka Provinces and Districts Mapping Data
-    const locationData = {
-        "Western": ["Colombo", "Gampaha", "Kalutara"],
-        "Central": ["Kandy", "Matale", "Nuwara Eliya"],
-        "Southern": ["Galle", "Matara", "Hambantota"],
-        "Northern": ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
-        "Eastern": ["Trincomalee", "Batticaloa", "Ampara"],
-        "North Western": ["Kurunegala", "Puttalam"],
-        "North Central": ["Anuradhapura", "Polonnaruwa"],
-        "Uva": ["Badulla", "Monaragala"],
-        "Sabaragamuwa": ["Ratnapura", "Kegalle"]
-    };
+    <script>
+        let lat = null;
+        let lon = null;
+        let photoData = null;
+        let stream = null;
 
-    // Function to update District Dropdown dynamically
-    function updateDistricts() {
-        const provinceSelect = document.getElementById("province");
-        const districtSelect = document.getElementById("district");
-        const selectedProvince = provinceSelect.value;
-
-        // Clear previous options
-        districtSelect.innerHTML = '<option value="">Select District</option>';
-
-        if (selectedProvince && locationData[selectedProvince]) {
-            locationData[selectedProvince].forEach(district => {
-                const option = document.createElement("option");
-                option.value = district;
-                option.textContent = district;
-                districtSelect.appendChild(option);
-            });
-        }
-    }
-
-    // 1. Get GPS Coordinates
-    function getGPS() {
-        document.getElementById('gps-status').innerText = "⏳ Fetching GPS...";
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    lat = position.coords.latitude;
-                    lon = position.coords.longitude;
-                    document.getElementById('gps-status').innerHTML = `✅ GPS Locked!<br>Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}`;
-                    document.getElementById('gps-status').style.color = "green";
-                },
-                (error) => {
-                    alert("Location access denied. Please enable GPS in your phone settings.");
-                    document.getElementById('gps-status').innerText = "❌ GPS Failed";
-                }
-            );
-        } else {
-            alert("Geolocation is not supported by your browser.");
-        }
-    }
-
-    // 2. Start Camera
-    function startCamera() {
-        const video = document.getElementById('video');
-        const captureBtn = document.getElementById('capture-btn');
-        
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then((mediaStream) => {
-                stream = mediaStream;
-                video.srcObject = mediaStream;
-                video.style.display = "block";
-                captureBtn.style.display = "block";
-            })
-            .catch((err) => {
-                alert("Camera access denied or not found.");
-            });
-    }
-
-    // 3. Capture Photo
-    function capturePhoto() {
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        photoData = canvas.toDataURL('image/jpeg');
-
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-
-        video.style.display = "none";
-        document.getElementById('capture-btn').style.display = "none";
-        canvas.style.display = "block";
-        
-        document.getElementById('photo-status').innerText = "✅ Photo Captured!";
-        document.getElementById('photo-status').style.color = "green";
-    }
-
-    // 4. Submit Report Data to Google Sheet
-    function submitReport() {
-        const province = document.getElementById('province').value;
-        const district = document.getElementById('district').value;
-        const city = document.getElementById('city').value;
-
-        if (!province || !district || !city) {
-            alert("⚠️ Please select Province, District and enter the City.");
-            return;
-        }
-        if (!lat || !lon) {
-            alert("⚠️ Please get GPS Coordinates!");
-            return;
-        }
-        if (!photoData) {
-            alert("⚠️ Please take a photo of the location!");
-            return;
-        }
-
-        // ==========================================
-        // METHANATA OYAGE GOOGLE APPS SCRIPT URL EKA DANNA
-        // ==========================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx77s0gw5qZplI-opiqGIIxd66TYFwxevad7xVEw-NjIdRsmQ6LvmmYM_iMkKflK-A25g/exec"; 
-
-        const report = {
-            time: new Date().toLocaleString(),
-            latitude: lat,
-            longitude: lon,
-            image: photoData,
-            province: province,
-            district: district,
-            city: city
-        };
-
-        const statusDiv = document.getElementById('submit-status');
-        statusDiv.innerText = "⏳ Submitting... Please wait.";
-        statusDiv.style.color = "blue";
-
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(report)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === "success"){
-                statusDiv.innerText = "✅ Report Successfully Submitted!";
-                statusDiv.style.color = "green";
-                alert("🎉 Thank you! The report has been saved.");
+        // 1. Get GPS Coordinates
+        function getGPS() {
+            document.getElementById('gps-status').innerText = "⏳ Fetching GPS...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        lat = position.coords.latitude;
+                        lon = position.coords.longitude;
+                        document.getElementById('gps-status').innerHTML = `✅ GPS Locked!<br>Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}`;
+                        document.getElementById('gps-status').style.color = "green";
+                    },
+                    (error) => {
+                        alert("Location access denied. Please enable GPS in your phone settings.");
+                        document.getElementById('gps-status').innerText = "❌ GPS Failed";
+                    }
+                );
             } else {
-                statusDiv.innerText = "❌ Error in saving data.";
-                statusDiv.style.color = "red";
+                alert("Geolocation is not supported by your browser.");
             }
-        })
-        .catch(error => {
-            statusDiv.innerText = "❌ Network Error.";
-            statusDiv.style.color = "red";
-            console.error(error);
-        });
-    }
-</script>
+        }
+
+        // 2. Start Camera
+        function startCamera() {
+            const video = document.getElementById('video');
+            const captureBtn = document.getElementById('capture-btn');
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then((mediaStream) => {
+                    stream = mediaStream;
+                    video.srcObject = mediaStream;
+                    video.style.display = "block";
+                    captureBtn.style.display = "block";
+                })
+                .catch((err) => {
+                    alert("Camera access denied or not found.");
+                });
+        }
+
+        // 3. Capture Photo
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Save image as Base64 string
+            photoData = canvas.toDataURL('image/jpeg');
+
+            // Stop camera stream to save battery
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            video.style.display = "none";
+            document.getElementById('capture-btn').style.display = "none";
+            canvas.style.display = "block"; // Show captured image
+
+            document.getElementById('photo-status').innerText = "✅ Photo Captured!";
+            document.getElementById('photo-status').style.color = "green";
+        }
+
+        // 4. Submit Report Data to Google Sheet
+        function submitReport() {
+            const province = document.getElementById('province').value;
+            const district = document.getElementById('district').value;
+            const city = document.getElementById('city').value;
+
+            // Check if all details are filled
+            if (!province || !district || !city) {
+                alert("⚠️ Please select Province, District and enter the City.");
+                return;
+            }
+            if (!lat || !lon) {
+                alert("⚠️ Please get GPS Coordinates!");
+                return;
+            }
+            if (!photoData) {
+                alert("⚠️ Please take a photo of the location!");
+                return;
+            }
+
+            // ==========================================
+            // METHANATA OYAGE GOOGLE APPS SCRIPT URL EKA DANNA
+            // ==========================================
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx77s0gw5qZplI-opiqGIIxd66TYFwxevad7xVEw-NjIdRsmQ6LvmmYM_iMkKflK-A25g/exec";
+
+            const report = {
+                time: new Date().toLocaleString(),
+                latitude: lat,
+                longitude: lon,
+                image: photoData,
+                province: province,
+                district: district,
+                city: city
+            };
+
+            const statusDiv = document.getElementById('submit-status');
+            statusDiv.innerText = "⏳ Submitting... Please wait.";
+            statusDiv.style.color = "blue";
+
+            // Send data to Google Apps Script
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(report)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        statusDiv.innerText = "✅ Report Successfully Submitted!";
+                        statusDiv.style.color = "green";
+                        alert("🎉 Thank you! The report has been saved.");
+                    } else {
+                        statusDiv.innerText = "❌ Error in saving data.";
+                        statusDiv.style.color = "red";
+                    }
+                })
+                .catch(error => {
+                    statusDiv.innerText = "❌ Network Error.";
+                    statusDiv.style.color = "red";
+                    console.error(error);
+                });
+        }
+    </script>
 
 </body>
+
 </html>
